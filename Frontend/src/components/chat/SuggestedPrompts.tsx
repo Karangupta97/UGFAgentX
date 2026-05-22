@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
@@ -10,11 +9,9 @@ interface ChatPromptMenuProps {
   disabled?: boolean;
 }
 
-/** ChatGPT-style + menu embedded in the chat composer. */
 export const ChatPromptMenu = ({ onSelect, disabled }: ChatPromptMenuProps) => {
   const isProcessing = useStore((state) => state.isProcessing);
   const isDisabled = disabled ?? isProcessing;
-
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<PromptCategory | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -32,14 +29,12 @@ export const ChatPromptMenu = ({ onSelect, disabled }: ChatPromptMenuProps) => {
 
   useEffect(() => {
     if (!open) return;
-
     const onPointerDown = (e: MouseEvent) => {
       if (!rootRef.current?.contains(e.target as Node)) close();
     };
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close();
     };
-
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
     return () => {
@@ -67,132 +62,80 @@ export const ChatPromptMenu = ({ onSelect, disabled }: ChatPromptMenuProps) => {
           });
         }}
         className={cn(
-          'w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-150',
-          isDisabled
-            ? 'text-[#3F3F46] cursor-not-allowed'
-            : open
-              ? 'bg-[#2A2A32] text-white'
-              : 'text-[#A1A1AA] hover:bg-[#2A2A32] hover:text-white'
+          'w-7 h-7 rounded-md flex items-center justify-center transition-colors duration-150',
+          'bg-[var(--bg-surface-2)] text-[var(--text-3)]',
+          !isDisabled && 'hover:text-[var(--text-1)]',
+          isDisabled && 'cursor-not-allowed opacity-50'
         )}
       >
-        <Plus className={cn('w-5 h-5 transition-transform duration-200', open && 'rotate-45')} />
+        <Plus className={cn('w-3.5 h-3.5 transition-transform duration-150', open && 'rotate-45')} />
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            role="menu"
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute left-0 bottom-full mb-2 z-40 w-[min(100vw-2rem,320px)] rounded-2xl border border-[#2A2A32] bg-[#212121] shadow-2xl shadow-black/60 overflow-hidden"
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              {activeCategory ? (
-                <motion.div
-                  key={activeCategory.id}
-                  role="group"
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -12 }}
-                  transition={{ duration: 0.12 }}
+      {open && (
+        <div
+          role="menu"
+          className="absolute left-0 bottom-full mb-2 z-40 w-[min(100vw-2rem,300px)] rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-xl overflow-hidden animate-fade"
+        >
+          {activeCategory ? (
+            <div>
+              <div className="px-2 py-2 border-b border-[var(--border-subtle)] flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory(null)}
+                  className="p-1.5 rounded-md text-[var(--text-2)] hover:bg-[var(--bg-surface-2)]"
                 >
-                  <div className="flex items-center gap-2 px-2 py-2 border-b border-[#2A2A32]">
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-sm font-medium text-[var(--text-1)] truncate">
+                  {activeCategory.label}
+                </span>
+              </div>
+              <ul className="max-h-[240px] overflow-y-auto py-1">
+                {activeCategory.options.map((opt) => (
+                  <li key={opt.prompt}>
                     <button
                       type="button"
-                      onClick={() => setActiveCategory(null)}
-                      className="p-2 rounded-lg text-[#A1A1AA] hover:bg-[#2A2A32] hover:text-white transition-colors"
-                      aria-label="Back to all prompts"
+                      role="menuitem"
+                      disabled={isDisabled}
+                      onClick={() => handleSelect(opt.prompt)}
+                      className="w-full px-4 py-2 text-left text-sm text-[var(--text-1)] hover:bg-[var(--bg-surface-2)] transition-colors duration-150"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      {opt.label}
                     </button>
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <span
-                        className={cn(
-                          'w-7 h-7 rounded-lg border border-[#3A3A44] flex items-center justify-center shrink-0',
-                          activeCategory.bg
-                        )}
-                      >
-                        <activeCategory.icon className={cn('w-3.5 h-3.5', activeCategory.color)} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div>
+              <div className="px-4 py-2 border-b border-[var(--border-subtle)]">
+                <p className="text-xs font-medium text-[var(--text-1)]">Suggested prompts</p>
+              </div>
+              <ul className="max-h-[280px] overflow-y-auto py-1">
+                {PROMPT_CATALOG.map((category) => (
+                  <li key={category.id}>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={isDisabled}
+                      onClick={() => setActiveCategory(category)}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-[var(--bg-surface-2)] transition-colors duration-150"
+                    >
+                      <category.icon className="w-4 h-4 text-[var(--text-2)] shrink-0" />
+                      <span className="flex-1 text-sm text-[var(--text-1)] truncate">
+                        {category.label}
                       </span>
-                      <span className="text-sm font-semibold text-white truncate">
-                        {activeCategory.label}
-                      </span>
-                    </div>
-                  </div>
-                  <ul className="max-h-[min(240px,45vh)] overflow-y-auto py-1 no-scrollbar">
-                    {activeCategory.options.map((opt) => (
-                      <li key={opt.prompt}>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          disabled={isDisabled}
-                          onClick={() => handleSelect(opt.prompt)}
-                          className={cn(
-                            'w-full px-4 py-2.5 text-left text-sm text-[#E4E4E7] transition-colors',
-                            isDisabled
-                              ? 'cursor-not-allowed text-[#52525B]'
-                              : 'hover:bg-[#2A2A32] active:bg-[#33333D]'
-                          )}
-                        >
-                          {opt.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="root"
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ duration: 0.12 }}
-                >
-                  <div className="px-4 py-2.5 border-b border-[#2A2A32]">
-                    <p className="text-xs font-medium text-[#9CA3AF]">Suggested prompts</p>
-                  </div>
-                  <ul className="max-h-[min(320px,50vh)] overflow-y-auto py-1 no-scrollbar">
-                    {PROMPT_CATALOG.map((category) => (
-                      <li key={category.id}>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          disabled={isDisabled}
-                          onClick={() => setActiveCategory(category)}
-                          className={cn(
-                            'w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors',
-                            isDisabled
-                              ? 'cursor-not-allowed opacity-50'
-                              : 'hover:bg-[#2A2A32] active:bg-[#33333D]'
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              'w-8 h-8 rounded-lg border border-[#3A3A44] flex items-center justify-center shrink-0',
-                              category.bg
-                            )}
-                          >
-                            <category.icon className={cn('w-4 h-4', category.color)} />
-                          </span>
-                          <span className="flex-1 min-w-0 text-sm font-medium text-[#E4E4E7] truncate">
-                            {category.label}
-                          </span>
-                          <ChevronRight className="w-4 h-4 text-[#71717A] shrink-0" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                      <ChevronRight className="w-4 h-4 text-[var(--text-3)]" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-/** @deprecated Use ChatPromptMenu — kept for existing imports */
 export const SuggestedPrompts = ChatPromptMenu;

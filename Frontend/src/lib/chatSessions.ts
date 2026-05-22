@@ -21,7 +21,7 @@ function daysAgo(date: Date, days: number): Date {
   return d;
 }
 
-export function truncateSessionTitle(title: string, max = 35): string {
+export function truncateSessionTitle(title: string, max = 28): string {
   const trimmed = title.trim();
   if (trimmed.length <= max) return trimmed;
   return `${trimmed.slice(0, max)}...`;
@@ -37,7 +37,7 @@ export function groupSessionsByDate(sessions: ChatSession[]): SessionGroup[] {
   const buckets: Record<string, ChatSession[]> = {
     Today: [],
     Yesterday: [],
-    'This week': [],
+    'This Week': [],
     'This month': [],
   };
   const olderByMonth = new Map<string, ChatSession[]>();
@@ -50,7 +50,7 @@ export function groupSessionsByDate(sessions: ChatSession[]): SessionGroup[] {
     } else if (isSameDay(updated, yesterday)) {
       buckets.Yesterday.push(session);
     } else if (updated >= weekAgo) {
-      buckets['This week'].push(session);
+      buckets['This Week'].push(session);
     } else if (updated >= monthAgo) {
       buckets['This month'].push(session);
     } else {
@@ -65,7 +65,7 @@ export function groupSessionsByDate(sessions: ChatSession[]): SessionGroup[] {
   }
 
   const groups: SessionGroup[] = [];
-  for (const label of ['Today', 'Yesterday', 'This week', 'This month']) {
+  for (const label of ['Today', 'Yesterday', 'This Week', 'This month']) {
     if (buckets[label].length > 0) {
       groups.push({ label, sessions: buckets[label] });
     }

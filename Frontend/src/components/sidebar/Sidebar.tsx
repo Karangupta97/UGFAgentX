@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, ScrollText } from 'lucide-react';
+import { Plus, Award } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
 import { SIDEBAR_INLINE_MEDIA } from '../../lib/layout';
+import { btnPrimary, btnPrimaryStyle, btnGhost } from '../../lib/styles';
 import { PreviousChats } from './PreviousChats';
 
+const SIDEBAR_W = 220;
+
 export const Sidebar = () => {
-  const { isSidebarOpen, toggleSidebar, startNewChat, mainView, setMainView } = useStore();
+  const { isSidebarOpen, toggleSidebar, startNewChat, setMainView } = useStore();
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(SIDEBAR_INLINE_MEDIA).matches
   );
@@ -30,8 +33,9 @@ export const Sidebar = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             onClick={toggleSidebar}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 xl:hidden"
+            className="fixed inset-0 bg-black/50 z-40 xl:hidden"
           />
         )}
       </AnimatePresence>
@@ -39,62 +43,54 @@ export const Sidebar = () => {
       <motion.aside
         initial={false}
         animate={{
-          width: showSidebar ? (isDesktop ? 260 : 280) : 0,
-          x: showSidebar ? 0 : isDesktop ? -260 : -280,
+          width: showSidebar ? (isDesktop ? SIDEBAR_W : 260) : 0,
+          x: showSidebar ? 0 : isDesktop ? -SIDEBAR_W : -260,
           opacity: showSidebar ? 1 : 0,
         }}
-        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        transition={{ duration: 0.15 }}
         className={cn(
-          'bg-[#0F0F12] border-r border-[#1F1F23] flex flex-col h-full max-h-screen overflow-hidden fixed xl:relative z-50 shrink-0',
-          !showSidebar && 'border-none pointer-events-none'
+          'flex flex-col h-full max-h-screen overflow-hidden z-50 shrink-0',
+          'fixed xl:relative left-0 top-0',
+          !showSidebar && 'pointer-events-none'
         )}
+        style={{ background: 'var(--gradient-sidebar)' }}
       >
-        <div className="p-6 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
-              <div className="w-4 h-4 bg-black rounded-sm" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-[#E4E4E7]">UGF AgentX</span>
+        <div className="flex flex-col flex-1 min-h-0 py-5 px-3">
+          <div className="flex items-center gap-2 mb-6 shrink-0">
+            <span className="text-[15px] font-semibold text-[var(--text-1)]">UGF AgentX</span>
+            <span
+              className="w-2 h-2 rounded-full bg-[var(--success)] ml-auto shrink-0"
+              aria-hidden
+            />
           </div>
-        </div>
 
-        <div className="px-6 mb-4 shrink-0 space-y-2">
-          <button
-            onClick={startNewChat}
-            className="w-full py-2.5 px-4 bg-[#1F1F23] border border-[#2D2D35] hover:bg-[#2D2D35] text-white rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
-          >
-            <Plus className="w-4 h-4 text-white" />
-            <span className="font-medium text-sm">New Chat</span>
-          </button>
           <button
             type="button"
-            onClick={() => setMainView('activity')}
-            className={cn(
-              'w-full py-2.5 px-4 border rounded-lg flex items-center justify-center gap-2 transition-colors duration-200',
-              mainView === 'activity'
-                ? 'bg-blue-500/15 border-blue-500/40 text-white'
-                : 'bg-[#13131A] border-[#2D2D35] hover:bg-[#2D2D35] text-[#A1A1AA] hover:text-white'
-            )}
+            onClick={startNewChat}
+            className={cn(btnPrimary, 'mb-2')}
+            style={btnPrimaryStyle}
           >
-            <ScrollText className="w-4 h-4 shrink-0" />
-            <span className="font-medium text-sm">My certificates</span>
+            <Plus className="w-3.5 h-3.5" />
+            New Chat
           </button>
+          <button type="button" onClick={() => setMainView('activity')} className={cn(btnGhost, 'mb-6')}>
+            <Award className="w-3.5 h-3.5" />
+            My Certificates
+          </button>
+
+          <PreviousChats showTimestamps={showSidebar} />
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
-          <PreviousChats />
-        </div>
-
-        <div className="mt-auto p-6 border-t border-[#1F1F23] shrink-0">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] text-[#71717A] font-bold uppercase tracking-wider">
+        <div className="shrink-0 px-3 pb-5 pt-3 border-t border-[var(--border-subtle)]">
+          <div className="flex flex-wrap gap-3 text-[10px] text-[var(--text-3)]">
+            <span className="inline-flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
               Base Sepolia
             </span>
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-          </div>
-
-          <div className="bg-[#1F1F23] rounded py-1 px-2 text-[10px] inline-block text-white font-bold tracking-tight">
-            UGF ENABLED
+            <span className="inline-flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
+              UGF Enabled
+            </span>
           </div>
         </div>
       </motion.aside>

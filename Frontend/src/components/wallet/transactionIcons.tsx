@@ -19,37 +19,43 @@ export type TransactionKind =
 
 const KIND_META: Record<
   TransactionKind,
-  { Icon: LucideIcon; accent: string; iconColor: string }
+  { Icon: LucideIcon; accent: string; iconColor: string; historyBg: string }
 > = {
   mint_badge: {
     Icon: Award,
-    accent: 'border-violet-500/25 bg-violet-500/10 text-violet-400 group-hover:bg-violet-500/15',
-    iconColor: 'text-violet-400',
+    accent: 'border-accent-primary/30 bg-accent-primary/10',
+    iconColor: 'text-accent-primary',
+    historyBg: 'bg-accent-primary/15 text-accent-primary',
   },
   claim_cert: {
     Icon: ScrollText,
-    accent: 'border-sky-500/25 bg-sky-500/10 text-sky-400 group-hover:bg-sky-500/15',
-    iconColor: 'text-sky-400',
+    accent: 'border-accent-success/30 bg-accent-success/10',
+    iconColor: 'text-accent-success',
+    historyBg: 'bg-accent-success/15 text-accent-success',
   },
   donate: {
     Icon: Heart,
-    accent: 'border-rose-500/25 bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/15',
-    iconColor: 'text-rose-400',
+    accent: 'border-accent-warning/30 bg-accent-warning/10',
+    iconColor: 'text-accent-warning',
+    historyBg: 'bg-accent-warning/15 text-accent-warning',
   },
   send_reward: {
     Icon: Gift,
-    accent: 'border-amber-500/25 bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/15',
-    iconColor: 'text-amber-400',
+    accent: 'border-accent-secondary/30 bg-accent-secondary/10',
+    iconColor: 'text-accent-secondary',
+    historyBg: 'bg-accent-secondary/15 text-accent-secondary',
   },
   swap: {
     Icon: ArrowLeftRight,
-    accent: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/15',
+    accent: 'border-cyan-500/30 bg-cyan-500/10',
     iconColor: 'text-cyan-400',
+    historyBg: 'bg-cyan-500/15 text-cyan-400',
   },
   unknown: {
     Icon: CircleDot,
-    accent: 'border-[#2D2D35] bg-[#1F1F23] text-[#A1A1AA] group-hover:bg-[#2D2D35]',
-    iconColor: 'text-[#A1A1AA]',
+    accent: 'border-border bg-bg-card',
+    iconColor: 'text-text-secondary',
+    historyBg: 'bg-bg-hover text-text-secondary',
   },
 };
 

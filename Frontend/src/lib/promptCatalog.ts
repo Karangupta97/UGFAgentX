@@ -1,3 +1,9 @@
+/** Placeholder text inside the chat input. */
+export const CHAT_INPUT_PLACEHOLDER =
+  'Ask anything, or tap + for mint / claim / donate prompts';
+
+export const CHAT_INPUT_PLACEHOLDER_SHORT = 'Ask anything — tap + for prompts';
+
 import type { LucideIcon } from 'lucide-react';
 import {
   ShieldCheck,

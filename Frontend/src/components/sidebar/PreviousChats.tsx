@@ -1,32 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Trash2 } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { groupSessionsByDate, truncateSessionTitle } from '../../lib/chatSessions';
-import { cn } from '../../lib/utils';
-
-function SessionSkeleton() {
-  const widths = ['w-[60%]', 'w-[80%]', 'w-[45%]', 'w-[70%]', 'w-[55%]'];
-
-  return (
-    <div className="space-y-2 animate-pulse">
-      {widths.map((width, i) => (
-        <div key={i} className={cn('h-8 rounded-md bg-[#1F1F23]', width)} />
-      ))}
-    </div>
-  );
-}
+import { cn, formatSessionListTime } from '../../lib/utils';
 
 function SessionRow({
   title,
+  updatedAt,
   isActive,
-  isDeleting,
+  showTimestamp,
   onSelect,
   onDelete,
 }: {
   title: string;
+  updatedAt: string;
   isActive: boolean;
-  isDeleting: boolean;
+  showTimestamp?: boolean;
   onSelect: () => void;
   onDelete: () => void;
 }) {
@@ -34,12 +23,7 @@ function SessionRow({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: isDeleting ? 0 : 1, x: 0 }}
-      exit={{ opacity: 0, x: -8 }}
-      transition={{ duration: 0.2 }}
+    <div
       className="relative"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => {
@@ -51,20 +35,33 @@ function SessionRow({
         type="button"
         onClick={onSelect}
         className={cn(
-          'w-full text-left px-3 py-2 rounded-md text-[13px] transition-colors flex items-center gap-2 min-h-[36px]',
+          'relative w-full text-left py-2 px-2.5 rounded-lg transition-all duration-150 pr-7',
           isActive
-            ? 'bg-[#2D2D35] text-white'
-            : 'text-[#A1A1AA] hover:bg-[#1A1A1F] hover:text-white'
+            ? 'bg-[var(--bg-surface-3)] text-[var(--text-1)]'
+            : 'text-[var(--text-2)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-1)]'
         )}
       >
-        <span className="flex-1 truncate">{truncateSessionTitle(title)}</span>
-        {hovered && !confirmDelete && (
+        {isActive && (
+          <span
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 rounded-sm bg-[var(--accent)]"
+            aria-hidden
+          />
+        )}
+        <span className={cn('block text-[13px] truncate', isActive && 'pl-1')}>
+          {truncateSessionTitle(title)}
+        </span>
+        {showTimestamp ? (
+          <span className={cn('block text-[10px] text-[var(--text-3)] mt-0.5', isActive && 'pl-1')}>
+            {formatSessionListTime(updatedAt)}
+          </span>
+        ) : null}
+        {(hovered || confirmDelete) && (
           <span
             role="button"
             tabIndex={0}
             onClick={(e) => {
               e.stopPropagation();
-              setConfirmDelete(true);
+              if (!confirmDelete) setConfirmDelete(true);
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -72,48 +69,32 @@ function SessionRow({
                 setConfirmDelete(true);
               }
             }}
-            className="shrink-0 p-0.5 rounded hover:bg-[#3F3F46] text-[#71717A] hover:text-[#E4E4E7]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-3)] hover:text-[var(--danger)] text-sm leading-none"
             aria-label="Delete chat"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            ×
           </span>
         )}
       </button>
-
-      <AnimatePresence>
-        {confirmDelete && (
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            className="absolute right-0 top-full z-10 mt-1 flex items-center gap-2 rounded-md border border-[#2D2D35] bg-[#18181B] px-2 py-1.5 shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span className="text-[11px] text-[#A1A1AA]">Delete?</span>
-            <button
-              type="button"
-              onClick={onDelete}
-              className="text-[11px] font-semibold text-red-400 hover:text-red-300"
-            >
-              Yes
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirmDelete(false)}
-              className="text-[11px] font-semibold text-[#71717A] hover:text-white"
-            >
-              No
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      {confirmDelete && (
+        <div
+          className="absolute right-0 top-full z-10 mt-1 flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-2 py-1 text-[11px]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="text-[var(--text-2)]">Delete?</span>
+          <button type="button" onClick={onDelete} className="text-[var(--danger)]">
+            Yes
+          </button>
+          <button type="button" onClick={() => setConfirmDelete(false)} className="text-[var(--text-3)]">
+            No
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
-export function PreviousChats() {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
+export function PreviousChats({ showTimestamps = true }: { showTimestamps?: boolean }) {
   const {
     chatSessions,
     activeSeshId,
@@ -134,48 +115,45 @@ export function PreviousChats() {
 
   return (
     <div className="flex flex-col min-h-0 flex-1">
-      <h3 className="text-[11px] uppercase tracking-[0.12em] text-[#52525B] font-bold mb-3 shrink-0">
+      <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] px-2 mb-2">
         Previous Chats
-      </h3>
-
-      <div className="flex-1 overflow-y-auto pr-1 space-y-1 sidebar-scroll">
+      </p>
+      <div className="flex-1 overflow-y-auto min-h-0">
         {sessionsLoading ? (
-          <SessionSkeleton />
+          <div className="px-2 space-y-2 animate-pulse">
+            {[60, 75, 50].map((w) => (
+              <div
+                key={w}
+                className="h-10 rounded-lg bg-[var(--bg-surface)]"
+                style={{ width: `${w}%` }}
+              />
+            ))}
+          </div>
         ) : chatSessions.length === 0 ? (
-          <div className="py-8 text-center">
-            <p className="text-[13px] text-[#52525B]">No previous chats yet</p>
-            <p className="text-[12px] text-[#3F3F46] mt-1">Start a conversation above</p>
+          <div className="flex flex-col items-center text-center py-6 px-2">
+            <MessageSquare className="w-5 h-5 text-[var(--text-3)] mb-2" />
+            <p className="text-[13px] text-[var(--text-2)]">No chats yet</p>
+            <p className="text-[11px] text-[var(--text-3)] mt-1">Start a conversation above</p>
           </div>
         ) : (
-          <AnimatePresence initial={false}>
-            {groups.map((group) => (
-              <motion.div
-                key={group.label}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mb-3"
-              >
-                <p className="text-[11px] text-[#52525B] font-medium mb-1.5 px-1">{group.label}</p>
-                <div className="space-y-0.5">
-                  {group.sessions.map((session) => (
-                    <div key={session.id}>
-                      <SessionRow
-                        title={session.title}
-                        isActive={activeSeshId === session.id}
-                        isDeleting={deletingId === session.id}
-                        onSelect={() => void loadSession(session.id)}
-                        onDelete={async () => {
-                          setDeletingId(session.id);
-                          await deleteSession(session.id);
-                          setDeletingId(null);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          groups.map((group) => (
+            <div key={group.label}>
+              <p className="text-[10px] text-[var(--text-3)] px-2 mt-3 mb-1 first:mt-0">
+                {group.label}
+              </p>
+              {group.sessions.map((session) => (
+                <SessionRow
+                  key={session.id}
+                  title={session.title}
+                  updatedAt={session.updated_at || session.created_at}
+                  isActive={activeSeshId === session.id}
+                  showTimestamp={showTimestamps}
+                  onSelect={() => void loadSession(session.id)}
+                  onDelete={() => void deleteSession(session.id)}
+                />
+              ))}
+            </div>
+          ))
         )}
       </div>
     </div>

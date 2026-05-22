@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { ArrowUp } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
 import { ChatPromptMenu } from './SuggestedPrompts';
+import { CHAT_INPUT_PLACEHOLDER, CHAT_INPUT_PLACEHOLDER_SHORT } from '../../lib/promptCatalog';
 
 interface ChatInputProps {
   prefill?: string;
   onPrefillConsumed?: () => void;
+  onInputChange?: (value: string) => void;
 }
 
-export const ChatInput = ({ prefill, onPrefillConsumed }: ChatInputProps) => {
+export const ChatInput = ({ prefill, onPrefillConsumed, onInputChange }: ChatInputProps) => {
   const [input, setInput] = useState('');
   const { submitPrompt, isProcessing } = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,6 +27,10 @@ export const ChatInput = ({ prefill, onPrefillConsumed }: ChatInputProps) => {
       onPrefillConsumed?.();
     }
   }, [prefill, onPrefillConsumed]);
+
+  useEffect(() => {
+    onInputChange?.(input);
+  }, [input, onInputChange]);
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -47,64 +52,63 @@ export const ChatInput = ({ prefill, onPrefillConsumed }: ChatInputProps) => {
   };
 
   const canSubmit = input.trim().length > 0 && !isProcessing;
+  const showPlaceholder = !input.trim() && !isProcessing;
 
   return (
-    <form onSubmit={handleSubmit} className="relative group w-full">
+    <form onSubmit={handleSubmit}>
       <div
         className={cn(
-          'relative flex items-center gap-1 sm:gap-2 rounded-[26px] sm:rounded-[28px] px-2 sm:px-3 min-h-[52px] sm:min-h-[56px] transition-all duration-200',
-          'bg-[#2F2F2F] border border-[#3A3A3A] shadow-lg shadow-black/20',
-          isProcessing
-            ? 'border-blue-500/30'
-            : 'focus-within:border-[#52525B] focus-within:bg-[#333333]'
+          'flex items-center gap-2.5 rounded-[14px] px-4 py-3.5 border border-[var(--border-default)] transition-all duration-150',
+          'focus-within:border-[rgba(124,58,237,0.5)] focus-within:shadow-[0_0_0_3px_rgba(124,58,237,0.08)]'
         )}
+        style={{ background: 'var(--gradient-input)' }}
       >
         <ChatPromptMenu onSelect={handlePromptSelect} disabled={isProcessing} />
 
-        <input
-          ref={inputRef}
-          type="text"
-          id="chat-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isProcessing}
-          placeholder={isProcessing ? 'AgentX is processing...' : 'Ask anything'}
-          className={cn(
-            'flex-1 min-w-0 bg-transparent border-none text-sm sm:text-[15px] focus:outline-none focus:ring-0 py-3',
-            isProcessing
-              ? 'text-[#52525B] placeholder-[#52525B] cursor-not-allowed'
-              : 'text-white placeholder-[#9CA3AF]'
-          )}
-        />
-
-        <div className="flex items-center gap-1.5 shrink-0 pr-0.5 sm:pr-1">
-          <span className="text-[10px] text-[#52525B] font-mono font-bold tracking-widest hidden lg:inline">
-            ↵
-          </span>
-
-          <AnimatePresence mode="wait">
-            <motion.button
-              key={isProcessing ? 'processing' : canSubmit ? 'ready' : 'idle'}
-              type="submit"
-              disabled={!canSubmit}
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.85, opacity: 0 }}
-              transition={{ duration: 0.12 }}
-              whileTap={{ scale: 0.92 }}
-              aria-label="Send message"
-              className={cn(
-                'w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200',
-                canSubmit
-                  ? 'bg-white text-black hover:bg-zinc-200'
-                  : 'bg-[#424242] text-[#71717A] cursor-not-allowed'
-              )}
+        <div className="relative flex-1 min-w-0">
+          <input
+            ref={inputRef}
+            type="text"
+            id="chat-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isProcessing}
+            placeholder={isProcessing ? 'AgentX is processing...' : undefined}
+            className={cn(
+              'w-full bg-transparent border-none text-sm text-[var(--text-1)] focus:outline-none focus:ring-0',
+              isProcessing && 'text-[var(--text-3)] cursor-not-allowed'
+            )}
+          />
+          {showPlaceholder && (
+            <span
+              className="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center text-sm text-[var(--text-3)] truncate"
+              aria-hidden
             >
-              <Send className="w-4 h-4 fill-current" />
-            </motion.button>
-          </AnimatePresence>
+              <span className="sm:hidden">{CHAT_INPUT_PLACEHOLDER_SHORT}</span>
+              <span className="hidden sm:inline">{CHAT_INPUT_PLACEHOLDER}</span>
+            </span>
+          )}
         </div>
+
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          aria-label="Send message"
+          className={cn(
+            'w-[34px] h-[34px] rounded-lg flex items-center justify-center shrink-0 transition-all duration-150',
+            canSubmit
+              ? 'text-white hover:brightness-110 hover:-translate-y-px'
+              : 'bg-[var(--bg-surface-2)] text-[var(--text-3)] cursor-not-allowed'
+          )}
+          style={
+            canSubmit
+              ? { background: 'var(--gradient-btn)', boxShadow: '0 2px 8px var(--accent-glow)' }
+              : undefined
+          }
+        >
+          <ArrowUp className="w-4 h-4" strokeWidth={2.5} />
+        </button>
       </div>
     </form>
   );

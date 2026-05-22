@@ -9,6 +9,7 @@
 ## Features
 
 - **Natural-language chat** — describe what you want (mint a badge, donate, check balance, view history); the backend parses intent and responds with guided steps.
+- **Suggested prompts (+ menu)** — tap **+** in the chat bar, pick a category (e.g. Claim certificate), choose a sub-prompt, edit if needed, then send.
 - **Gasless on-chain execution** — UGF handles gas sponsorship; users pay with TYI Mock USD from a connected wallet or a configured server signer.
 - **Wallet authentication** — sign a nonce with your wallet (or Google login for demo) and receive a JWT for protected API routes.
 - **Activity & wallet panel** — transaction timeline, NFT gallery, and balance summary in the UI.
@@ -63,6 +64,15 @@ npm run dev
 ```
 
 App runs at `http://localhost:3000`. Set `FRONTEND_URL` in the backend `.env` to match your browser origin for CORS.
+
+### Using suggested prompts
+
+1. In the chat composer, tap the **+** button (left of the input).
+2. Select a category — **Mint badge**, **Claim certificate**, **Donate**, **Swap**, etc.
+3. Pick a sub-prompt; it fills the input (you can edit before sending).
+4. Press **Send** or Enter. AgentX parses the message and runs the matching on-chain flow when configured.
+
+Prompt labels and sub-prompts are defined in `Frontend/src/lib/promptCatalog.ts`.
 
 ### On-chain setup
 
