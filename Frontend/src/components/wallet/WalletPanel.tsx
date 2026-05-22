@@ -186,7 +186,7 @@ export const WalletPanel = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleWallet}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 xl:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 2xl:hidden"
           />
         )}
       </AnimatePresence>
@@ -309,9 +309,10 @@ export const WalletPanel = () => {
 
       <aside
         className={cn(
-          'w-72 bg-[#0F0F12] border-l border-[#1F1F23] h-screen flex flex-col text-[#E4E4E7] fixed right-0 top-0 xl:relative z-50 transition-transform duration-300',
-          isWalletOpen ? 'translate-x-0' : 'translate-x-full xl:translate-x-0',
-          !isWalletOpen && 'xl:flex hidden'
+          'w-64 2xl:w-72 bg-[#0F0F12] border-l border-[#1F1F23] h-full max-h-screen flex flex-col text-[#E4E4E7] shrink-0 z-50 transition-transform duration-300',
+          'fixed right-0 top-0 2xl:relative',
+          isWalletOpen ? 'translate-x-0 flex' : 'translate-x-full max-2xl:hidden',
+          '2xl:flex 2xl:translate-x-0'
         )}
       >
         <div className="p-6 shrink-0 flex flex-col gap-2">

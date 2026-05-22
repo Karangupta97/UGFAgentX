@@ -1,23 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, ScrollText } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
+import { SIDEBAR_INLINE_MEDIA } from '../../lib/layout';
 import { PreviousChats } from './PreviousChats';
 
 export const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar, startNewChat, mainView, setMainView } = useStore();
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(SIDEBAR_INLINE_MEDIA).matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(SIDEBAR_INLINE_MEDIA);
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  const showSidebar = isDesktop || isSidebarOpen;
 
   return (
     <>
       <AnimatePresence>
-        {isSidebarOpen && (
+        {isSidebarOpen && !isDesktop && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleSidebar}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 xl:hidden"
           />
         )}
       </AnimatePresence>
@@ -25,14 +39,14 @@ export const Sidebar = () => {
       <motion.aside
         initial={false}
         animate={{
-          width: isSidebarOpen ? 280 : 0,
-          x: isSidebarOpen ? 0 : -280,
-          opacity: isSidebarOpen ? 1 : 0,
+          width: showSidebar ? (isDesktop ? 260 : 280) : 0,
+          x: showSidebar ? 0 : isDesktop ? -260 : -280,
+          opacity: showSidebar ? 1 : 0,
         }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         className={cn(
-          'bg-[#0F0F12] border-r border-[#1F1F23] flex flex-col h-screen overflow-hidden fixed lg:relative z-50',
-          !isSidebarOpen && 'border-none'
+          'bg-[#0F0F12] border-r border-[#1F1F23] flex flex-col h-full max-h-screen overflow-hidden fixed xl:relative z-50 shrink-0',
+          !showSidebar && 'border-none pointer-events-none'
         )}
       >
         <div className="p-6 flex items-center justify-between shrink-0">

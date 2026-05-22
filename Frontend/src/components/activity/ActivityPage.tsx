@@ -97,7 +97,7 @@ export function ActivityPage() {
           <button
             type="button"
             onClick={() => setMainView('chat')}
-            className="lg:hidden p-2 rounded-lg border border-[#2D2D35] hover:bg-[#1C1C22] text-[#A1A1AA]"
+            className="xl:hidden p-2 rounded-lg border border-[#2D2D35] hover:bg-[#1C1C22] text-[#A1A1AA]"
             aria-label="Back to chat"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -126,8 +126,8 @@ export function ActivityPage() {
       <div className="flex-1 flex min-h-0">
         <div
           className={cn(
-            'w-full lg:w-[380px] shrink-0 border-r border-[#1F1F23] flex flex-col min-h-0',
-            selected && 'hidden lg:flex'
+            'w-full xl:w-[340px] shrink-0 border-r border-[#1F1F23] flex flex-col min-h-0',
+            selected && 'hidden xl:flex'
           )}
         >
           <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
@@ -166,7 +166,7 @@ export function ActivityPage() {
         <div
           className={cn(
             'flex-1 min-w-0 flex flex-col min-h-0 bg-[#0A0A0B]',
-            !selected && 'hidden lg:flex'
+            !selected && 'hidden xl:flex'
           )}
         >
           <AnimatePresence mode="wait">
@@ -178,7 +178,7 @@ export function ActivityPage() {
                 exit={{ opacity: 0 }}
                 className="flex flex-col h-full min-h-0"
               >
-                <div className="lg:hidden shrink-0 px-4 py-3 border-b border-[#1F1F23]">
+                <div className="xl:hidden shrink-0 px-4 py-3 border-b border-[#1F1F23]">
                   <button
                     type="button"
                     onClick={() => selectActivity(null)}

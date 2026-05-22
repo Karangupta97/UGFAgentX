@@ -226,7 +226,7 @@ export const useStore = create<AppState>((set, get) => ({
   activityLoading: false,
   activeTransaction: null,
   transactionHistory: [],
-  isSidebarOpen: window.innerWidth > 1024,
+  isSidebarOpen: typeof window !== 'undefined' && window.innerWidth >= 1280,
   isWalletOpen: false,
   isProcessing: false,
   isTyping: false,

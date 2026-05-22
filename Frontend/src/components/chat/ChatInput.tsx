@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
+import { ChatPromptMenu } from './SuggestedPrompts';
 
 interface ChatInputProps {
-  /** Optional externally-controlled value for autofill from suggested prompts */
   prefill?: string;
   onPrefillConsumed?: () => void;
 }
@@ -15,12 +15,10 @@ export const ChatInput = ({ prefill, onPrefillConsumed }: ChatInputProps) => {
   const { submitPrompt, isProcessing } = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  // Handle external prefill (from suggested prompts)
   useEffect(() => {
     if (prefill) {
       setInput(prefill);
@@ -43,37 +41,25 @@ export const ChatInput = ({ prefill, onPrefillConsumed }: ChatInputProps) => {
     }
   };
 
+  const handlePromptSelect = (prompt: string) => {
+    setInput(prompt);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  };
+
   const canSubmit = input.trim().length > 0 && !isProcessing;
 
   return (
-    <form onSubmit={handleSubmit} className="relative group">
-      {/* Glow bg */}
+    <form onSubmit={handleSubmit} className="relative group w-full">
       <div
         className={cn(
-          'absolute inset-0 rounded-2xl blur-xl transition-all duration-500 pointer-events-none',
+          'relative flex items-center gap-1 sm:gap-2 rounded-[26px] sm:rounded-[28px] px-2 sm:px-3 min-h-[52px] sm:min-h-[56px] transition-all duration-200',
+          'bg-[#2F2F2F] border border-[#3A3A3A] shadow-lg shadow-black/20',
           isProcessing
-            ? 'bg-blue-500/5'
-            : input.trim()
-            ? 'bg-white/6'
-            : 'bg-white/3 group-focus-within:bg-white/8'
-        )}
-      />
-
-      <div
-        className={cn(
-          'relative flex items-center bg-[#13131A] border rounded-xl px-4 sm:px-5 h-14 transition-all duration-200 gap-3',
-          isProcessing
-            ? 'border-blue-500/30 bg-blue-950/10'
-            : 'border-[#1F1F23] focus-within:border-[#3A3A44]'
+            ? 'border-blue-500/30'
+            : 'focus-within:border-[#52525B] focus-within:bg-[#333333]'
         )}
       >
-        {/* Sparkles icon */}
-        <Sparkles
-          className={cn(
-            'w-4 h-4 shrink-0 transition-colors duration-200',
-            isProcessing ? 'text-blue-400 animate-pulse' : 'text-[#3F3F46]'
-          )}
-        />
+        <ChatPromptMenu onSelect={handlePromptSelect} disabled={isProcessing} />
 
         <input
           ref={inputRef}
@@ -83,38 +69,39 @@ export const ChatInput = ({ prefill, onPrefillConsumed }: ChatInputProps) => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isProcessing}
-          placeholder={isProcessing ? 'AgentX is processing...' : 'Ask AgentX anything...'}
+          placeholder={isProcessing ? 'AgentX is processing...' : 'Ask anything'}
           className={cn(
-            'flex-1 bg-transparent border-none text-sm focus:outline-none focus:ring-0 transition-colors duration-200',
+            'flex-1 min-w-0 bg-transparent border-none text-sm sm:text-[15px] focus:outline-none focus:ring-0 py-3',
             isProcessing
-              ? 'text-[#52525B] placeholder-[#2A2A32] cursor-not-allowed'
-              : 'text-white placeholder-[#3F3F46]'
+              ? 'text-[#52525B] placeholder-[#52525B] cursor-not-allowed'
+              : 'text-white placeholder-[#9CA3AF]'
           )}
         />
 
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[10px] text-[#3F3F46] font-mono font-bold tracking-widest hidden md:inline">
-            ENTER
+        <div className="flex items-center gap-1.5 shrink-0 pr-0.5 sm:pr-1">
+          <span className="text-[10px] text-[#52525B] font-mono font-bold tracking-widest hidden lg:inline">
+            ↵
           </span>
 
           <AnimatePresence mode="wait">
             <motion.button
-              key={isProcessing ? 'processing' : 'idle'}
+              key={isProcessing ? 'processing' : canSubmit ? 'ready' : 'idle'}
               type="submit"
               disabled={!canSubmit}
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.12 }}
               whileTap={{ scale: 0.92 }}
+              aria-label="Send message"
               className={cn(
-                'w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200',
+                'w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200',
                 canSubmit
-                  ? 'bg-white text-black hover:bg-gray-100 shadow-lg shadow-white/10'
-                  : 'bg-[#1F1F23] text-[#52525B] cursor-not-allowed'
+                  ? 'bg-white text-black hover:bg-zinc-200'
+                  : 'bg-[#424242] text-[#71717A] cursor-not-allowed'
               )}
             >
-              <Send className="w-3.5 h-3.5 fill-current" />
+              <Send className="w-4 h-4 fill-current" />
             </motion.button>
           </AnimatePresence>
         </div>

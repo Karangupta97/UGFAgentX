@@ -206,7 +206,12 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
         </div>
       )}
 
-      <div className={cn('flex flex-col gap-1', isAssistant ? 'max-w-[78%]' : 'items-end max-w-[72%]')}>
+      <div
+        className={cn(
+          'flex flex-col gap-1 min-w-0',
+          isAssistant ? 'max-w-[min(100%,28rem)] sm:max-w-[78%]' : 'items-end max-w-[min(100%,24rem)] sm:max-w-[72%]'
+        )}
+      >
         <div
           className={cn(
             'px-4 py-3 rounded-2xl text-sm leading-relaxed',
