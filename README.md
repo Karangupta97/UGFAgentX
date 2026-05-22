@@ -6,6 +6,51 @@
 
 **[https://ugfagentx.medicares.in](https://ugfagentx.medicares.in)**
 
+## Screenshots
+
+Previews from [`Frontend/public/websiteimage/`](Frontend/public/websiteimage/). In the running app, these are served at `/websiteimage/…`.
+
+### Landing page
+
+<table>
+  <tr>
+    <td width="50%" valign="top" align="center">
+      <strong>Hero — type a command, go on-chain</strong><br/><br/>
+      <img src="Frontend/public/websiteimage/landingpage-1.png" alt="UGF AgentX marketing landing hero with blockchain visualization" width="100%"/>
+    </td>
+    <td width="50%" valign="top" align="center">
+      <strong>Solution — one chat, zero ETH required</strong><br/><br/>
+      <img src="Frontend/public/websiteimage/landingpage-2.png" alt="UGF AgentX landing page how-it-works and UGF execution flow" width="100%"/>
+    </td>
+  </tr>
+</table>
+
+### AgentX chat dashboard
+
+<table>
+  <tr>
+    <td width="50%" valign="top" align="center">
+      <strong>Dark mode — welcome & quick actions</strong><br/><br/>
+      <img src="Frontend/public/websiteimage/chartdarkmode.png" alt="UGF AgentX app in dark mode with chat, wallet panel, and suggested prompts" width="100%"/>
+    </td>
+    <td width="50%" valign="top" align="center">
+      <strong>Light mode — same layout, theme toggle</strong><br/><br/>
+      <img src="Frontend/public/websiteimage/chartlightmode.png" alt="UGF AgentX app in light mode with sidebar, chat, and activity panel" width="100%"/>
+    </td>
+  </tr>
+</table>
+
+### Certificates & on-chain activity
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>My Certificates & Activity — timeline, gas in Mock USD, badge preview</strong><br/><br/>
+      <img src="Frontend/public/websiteimage/Certificates.png" alt="UGF AgentX certificates and activity page with transaction details" width="90%"/>
+    </td>
+  </tr>
+</table>
+
 ## Features
 
 - **Natural-language chat** — describe what you want (mint a badge, donate, check balance, view history); the backend parses intent and responds with guided steps.

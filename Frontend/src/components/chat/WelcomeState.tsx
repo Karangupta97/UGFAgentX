@@ -47,7 +47,7 @@ export function WelcomeState({
   onSelectPrompt: (prompt: string) => void;
 }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-6 pb-[120px] animate-fade ugf-hero-bg">
+    <div className="flex flex-1 flex-col items-center justify-center px-4 sm:px-6 pb-[120px] animate-fade ugf-hero-bg w-full min-w-0">
       <div
         className="w-[72px] h-[72px] rounded-full animate-float mb-5 ugf-orb"
         aria-hidden
@@ -82,7 +82,7 @@ export function WelcomeState({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-[640px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-[640px] px-2 sm:px-0">
         {FEATURE_CARDS.map((card) => (
           <button
             key={card.title}

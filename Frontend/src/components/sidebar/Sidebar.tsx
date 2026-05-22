@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Award } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
-import { SIDEBAR_INLINE_MEDIA } from '../../lib/layout';
+import { SIDEBAR_INLINE_MEDIA, SIDEBAR_WIDTH_PX } from '../../lib/layout';
 import { btnPrimary, btnPrimaryStyle, btnGhost } from '../../lib/styles';
 import { PreviousChats } from './PreviousChats';
 
-const SIDEBAR_W = 220;
+const SIDEBAR_W = SIDEBAR_WIDTH_PX;
 
 export const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar, startNewChat, setMainView } = useStore();
@@ -43,8 +44,8 @@ export const Sidebar = () => {
       <motion.aside
         initial={false}
         animate={{
-          width: showSidebar ? (isDesktop ? SIDEBAR_W : 260) : 0,
-          x: showSidebar ? 0 : isDesktop ? -SIDEBAR_W : -260,
+          width: showSidebar ? SIDEBAR_W : 0,
+          x: showSidebar ? 0 : -SIDEBAR_W,
           opacity: showSidebar ? 1 : 0,
         }}
         transition={{ duration: 0.15 }}
@@ -55,9 +56,15 @@ export const Sidebar = () => {
         )}
         style={{ background: 'var(--gradient-sidebar)' }}
       >
-        <div className="flex flex-col flex-1 min-h-0 py-5 px-3">
-          <div className="flex items-center gap-2 mb-6 shrink-0">
-            <span className="text-[15px] font-semibold text-[var(--text-1)]">UGF AgentX</span>
+        <div className="flex flex-col flex-1 min-h-0 py-5 px-4">
+          <div className="flex items-center gap-2 mb-6 shrink-0 min-w-0">
+            <Link
+              to="/"
+              className="text-base font-semibold text-[var(--text-1)] truncate hover:text-[var(--accent)] transition-colors duration-150"
+              title="UGF AgentX home"
+            >
+              UGF AgentX
+            </Link>
             <span
               className="w-2 h-2 rounded-full bg-[var(--success)] ml-auto shrink-0"
               aria-hidden
@@ -67,22 +74,22 @@ export const Sidebar = () => {
           <button
             type="button"
             onClick={startNewChat}
-            className={cn(btnPrimary, 'mb-2')}
+            className={cn(btnPrimary, 'mb-2 text-sm')}
             style={btnPrimaryStyle}
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
             New Chat
           </button>
-          <button type="button" onClick={() => setMainView('activity')} className={cn(btnGhost, 'mb-6')}>
-            <Award className="w-3.5 h-3.5" />
+          <button type="button" onClick={() => setMainView('activity')} className={cn(btnGhost, 'mb-6 text-sm')}>
+            <Award className="w-4 h-4" />
             My Certificates
           </button>
 
-          <PreviousChats showTimestamps={showSidebar} />
+          <PreviousChats />
         </div>
 
-        <div className="shrink-0 px-3 pb-5 pt-3 border-t border-[var(--border-subtle)]">
-          <div className="flex flex-wrap gap-3 text-[10px] text-[var(--text-3)]">
+        <div className="shrink-0 px-4 pb-5 pt-3 border-t border-[var(--border-subtle)]">
+          <div className="flex flex-wrap gap-3 text-[11px] text-[var(--text-3)]">
             <span className="inline-flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
               Base Sepolia

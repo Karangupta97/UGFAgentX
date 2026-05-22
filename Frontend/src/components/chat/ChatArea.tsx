@@ -106,7 +106,7 @@ export const ChatArea = () => {
         <button
           type="button"
           onClick={toggleWallet}
-          className="p-2 rounded-lg 2xl:hidden text-[var(--text-2)] hover:bg-[var(--bg-surface)] transition-colors duration-150 shrink-0"
+          className="p-2 rounded-lg xl:hidden text-[var(--text-2)] hover:bg-[var(--bg-surface)] transition-colors duration-150 shrink-0"
           aria-label="Open wallet"
         >
           <WalletIcon className="w-4 h-4" />

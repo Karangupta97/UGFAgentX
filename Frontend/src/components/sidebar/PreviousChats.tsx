@@ -2,20 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { groupSessionsByDate, truncateSessionTitle } from '../../lib/chatSessions';
-import { cn, formatSessionListTime } from '../../lib/utils';
+import { cn } from '../../lib/utils';
 
 function SessionRow({
   title,
-  updatedAt,
   isActive,
-  showTimestamp,
   onSelect,
   onDelete,
 }: {
   title: string;
-  updatedAt: string;
   isActive: boolean;
-  showTimestamp?: boolean;
   onSelect: () => void;
   onDelete: () => void;
 }) {
@@ -35,7 +31,7 @@ function SessionRow({
         type="button"
         onClick={onSelect}
         className={cn(
-          'relative w-full text-left py-2 px-2.5 rounded-lg transition-all duration-150 pr-7',
+          'relative w-full text-left py-2.5 px-3 rounded-lg transition-all duration-150 pr-8',
           isActive
             ? 'bg-[var(--bg-surface-3)] text-[var(--text-1)]'
             : 'text-[var(--text-2)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-1)]'
@@ -47,14 +43,9 @@ function SessionRow({
             aria-hidden
           />
         )}
-        <span className={cn('block text-[13px] truncate', isActive && 'pl-1')}>
+        <span className={cn('block text-sm truncate', isActive && 'pl-1')}>
           {truncateSessionTitle(title)}
         </span>
-        {showTimestamp ? (
-          <span className={cn('block text-[10px] text-[var(--text-3)] mt-0.5', isActive && 'pl-1')}>
-            {formatSessionListTime(updatedAt)}
-          </span>
-        ) : null}
         {(hovered || confirmDelete) && (
           <span
             role="button"
@@ -94,7 +85,7 @@ function SessionRow({
   );
 }
 
-export function PreviousChats({ showTimestamps = true }: { showTimestamps?: boolean }) {
+export function PreviousChats() {
   const {
     chatSessions,
     activeSeshId,
@@ -115,7 +106,7 @@ export function PreviousChats({ showTimestamps = true }: { showTimestamps?: bool
 
   return (
     <div className="flex flex-col min-h-0 flex-1">
-      <p className="text-[10px] uppercase tracking-wider text-[var(--text-3)] px-2 mb-2">
+      <p className="text-[11px] uppercase tracking-wider text-[var(--text-3)] px-2 mb-2">
         Previous Chats
       </p>
       <div className="flex-1 overflow-y-auto min-h-0">
@@ -132,22 +123,20 @@ export function PreviousChats({ showTimestamps = true }: { showTimestamps?: bool
         ) : chatSessions.length === 0 ? (
           <div className="flex flex-col items-center text-center py-6 px-2">
             <MessageSquare className="w-5 h-5 text-[var(--text-3)] mb-2" />
-            <p className="text-[13px] text-[var(--text-2)]">No chats yet</p>
-            <p className="text-[11px] text-[var(--text-3)] mt-1">Start a conversation above</p>
+            <p className="text-sm text-[var(--text-2)]">No chats yet</p>
+            <p className="text-xs text-[var(--text-3)] mt-1">Start a conversation above</p>
           </div>
         ) : (
           groups.map((group) => (
             <div key={group.label}>
-              <p className="text-[10px] text-[var(--text-3)] px-2 mt-3 mb-1 first:mt-0">
+              <p className="text-[11px] text-[var(--text-3)] px-2 mt-3 mb-1 first:mt-0">
                 {group.label}
               </p>
               {group.sessions.map((session) => (
                 <SessionRow
                   key={session.id}
                   title={session.title}
-                  updatedAt={session.updated_at || session.created_at}
                   isActive={activeSeshId === session.id}
-                  showTimestamp={showTimestamps}
                   onSelect={() => void loadSession(session.id)}
                   onDelete={() => void deleteSession(session.id)}
                 />

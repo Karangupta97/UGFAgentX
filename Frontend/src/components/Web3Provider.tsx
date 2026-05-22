@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
 import { createConfig, WagmiProvider, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
+import { BASE_SEPOLIA_RPC_URL } from '../lib/baseSepoliaWallet';
 import { WalletAuthSync } from './WalletAuthSync';
 
 /** Matches the browser origin in dev; set VITE_APP_URL in production. */
@@ -24,7 +25,7 @@ export const wagmiConfig = createConfig(
     // Your dApps chains
     chains: [baseSepolia],
     transports: {
-      [baseSepolia.id]: http(),
+      [baseSepolia.id]: http(BASE_SEPOLIA_RPC_URL),
     },
 
     // Required API Keys
