@@ -25,7 +25,7 @@ export const config = {
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
   frontendOrigins: (process.env.FRONTEND_URL || 'http://localhost:3000')
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/$/, ''))
     .filter(Boolean),
 
   // UGF — global server signer (pays gas, signs all UGF + chain txs); auth via wallet login only
@@ -117,4 +117,6 @@ export function validateConfig(): void {
     console.warn('ℹ️  On-chain execution disabled until signer + NFT_CONTRACT_ADDRESS are both valid');
     console.warn('ℹ️  See Backend/docs/SETUP_UGF.md');
   }
+
+  console.info(`ℹ️  CORS allowed origins: ${config.frontendOrigins.join(', ')}`);
 }
