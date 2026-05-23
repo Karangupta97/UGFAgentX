@@ -60,19 +60,40 @@ export function buildStepsFromStatus(
       stepStatus = 'active';
     }
 
+    const activeDetail = (() => {
+      if (status.status === 'awaiting_settlement' || status.status === 'settling') {
+        return 'Approve Mock USD in your wallet when prompted.';
+      }
+      if (status.status === 'executing') {
+        return 'UGF is broadcasting your transaction…';
+      }
+      if (status.status === 'mining') {
+        return 'Waiting for block confirmation on Base Sepolia…';
+      }
+      if (status.status === 'quoted') {
+        return 'Locking in gas quote in Mock USD…';
+      }
+      return undefined;
+    })();
+
     return {
       id,
       label: templateSteps.find((t) => t.id === id)?.label ?? STEP_LABELS[id] ?? id,
       status: stepStatus,
       txHash: status.txHash ?? undefined,
+      walletPending:
+        stepStatus === 'active' && (id === 'settle' || id === 'execute') &&
+        (status.status === 'awaiting_settlement' || status.status === 'settling'),
       detail:
         stepStatus === 'error'
           ? status.failureReason ?? 'Failed'
           : stepStatus === 'active'
-            ? status.status
+            ? activeDetail
             : stepStatus === 'completed'
-              ? 'Verified'
-              : 'Awaiting...',
+              ? id === 'confirm' && status.txHash
+                ? `Confirmed · ${status.txHash.slice(0, 10)}…`
+                : undefined
+              : undefined,
     };
   });
 }

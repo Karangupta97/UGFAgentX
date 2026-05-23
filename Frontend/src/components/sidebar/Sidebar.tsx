@@ -5,16 +5,20 @@ import { Plus, Award } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import { cn } from '../../lib/utils';
 import { SIDEBAR_INLINE_MEDIA, SIDEBAR_WIDTH_PX } from '../../lib/layout';
+import { isWalletCommunicating } from '../../lib/timelineCopy';
 import { btnPrimary, btnPrimaryStyle, btnGhost } from '../../lib/styles';
 import { PreviousChats } from './PreviousChats';
 
 const SIDEBAR_W = SIDEBAR_WIDTH_PX;
 
 export const Sidebar = () => {
-  const { isSidebarOpen, toggleSidebar, startNewChat, setMainView } = useStore();
+  const { isSidebarOpen, toggleSidebar, setSidebarOpen, startNewChat, setMainView, activeTransaction } =
+    useStore();
   const [isDesktop, setIsDesktop] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(SIDEBAR_INLINE_MEDIA).matches
   );
+
+  const walletBusy = isWalletCommunicating(activeTransaction);
 
   useEffect(() => {
     const mq = window.matchMedia(SIDEBAR_INLINE_MEDIA);
@@ -24,12 +28,18 @@ export const Sidebar = () => {
     return () => mq.removeEventListener('change', sync);
   }, []);
 
-  const showSidebar = isDesktop || isSidebarOpen;
+  useEffect(() => {
+    if (walletBusy && !isDesktop) {
+      setSidebarOpen(false);
+    }
+  }, [walletBusy, isDesktop, setSidebarOpen]);
+
+  const showSidebar = walletBusy && !isDesktop ? false : isDesktop || isSidebarOpen;
 
   return (
     <>
       <AnimatePresence>
-        {isSidebarOpen && !isDesktop && (
+        {isSidebarOpen && !isDesktop && !walletBusy && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

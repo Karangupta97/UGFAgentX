@@ -32,6 +32,8 @@ export interface TransactionStep {
   status: 'pending' | 'active' | 'completed' | 'error';
   txHash?: string;
   detail?: string;
+  /** True while waiting on MetaMask / wallet popup */
+  walletPending?: boolean;
 }
 
 export interface GasEstimate {

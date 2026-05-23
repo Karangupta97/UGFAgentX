@@ -21,7 +21,8 @@ import {
   type ChatResponse,
   type DbChatMessage,
 } from '../lib/api';
-import { runUserWalletUgfFlow } from '../lib/ugfWalletSettlement';
+import { runUserWalletUgfFlow, type WalletSettlementPhase } from '../lib/ugfWalletSettlement';
+import { patchStepsForWalletPhase } from '../lib/walletTimeline';
 import { getStoredToken } from '../lib/authStorage';
 import { mapDbTransactions } from '../lib/transactionHistory';
 import {
@@ -32,6 +33,8 @@ import {
 } from '../lib/activityRecords';
 import { trackTransaction } from '../lib/transactionTracker';
 import { mapStatusToTransactionState } from '../lib/transactionSteps';
+import { isWalletCommunicating } from '../lib/timelineCopy';
+import { isSidebarInlineViewport } from '../lib/layout';
 
 // ─── Store Shape ───────────────────────────────────────────────────────────────
 
@@ -71,6 +74,7 @@ interface AppState {
   openActivityDetail: (id: string) => void;
   refreshSelectedActivity: () => Promise<void>;
   toggleSidebar: () => void;
+  setSidebarOpen: (open: boolean) => void;
   toggleWallet: () => void;
   startNewChat: () => void;
   clearChat: () => void;
@@ -380,26 +384,27 @@ export const useStore = create<AppState>((set, get) => ({
             );
           } else {
             void (async () => {
-              try {
+              const applyWalletPhase = (phase: WalletSettlementPhase) => {
                 set((state) =>
                   state.activeTransaction
                     ? {
                         activeTransaction: {
                           ...state.activeTransaction,
-                          steps: state.activeTransaction.steps.map((s) =>
-                            s.id === 'settle'
-                              ? { ...s, status: 'active' as const, detail: 'Approve in wallet…' }
-                              : s
-                          ),
+                          steps: patchStepsForWalletPhase(state.activeTransaction.steps, phase),
                         },
                       }
                     : state
                 );
+              };
+
+              try {
+                applyWalletPhase('switch_network');
 
                 const { userTxHash, quoteId } = await runUserWalletUgfFlow({
                   quoteSnapshot: quote,
                   contractAddress,
                   calldata,
+                  onProgress: applyWalletPhase,
                 });
 
                 await completeUserWalletUgfTransaction(transactionId, {
@@ -421,8 +426,13 @@ export const useStore = create<AppState>((set, get) => ({
                           status: 'failed',
                           failureReason: reason,
                           steps: state.activeTransaction.steps.map((s) =>
-                            s.id === 'settle'
-                              ? { ...s, status: 'error' as const, detail: reason }
+                            s.status === 'active' || s.id === 'settle'
+                              ? {
+                                  ...s,
+                                  status: 'error' as const,
+                                  detail: reason,
+                                  walletPending: false,
+                                }
                               : s
                           ),
                         },
@@ -584,7 +594,14 @@ export const useStore = create<AppState>((set, get) => ({
     }
   },
 
-  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+  toggleSidebar: () =>
+    set((state) => {
+      if (isWalletCommunicating(state.activeTransaction) && !isSidebarInlineViewport()) {
+        return state;
+      }
+      return { isSidebarOpen: !state.isSidebarOpen };
+    }),
+  setSidebarOpen: (open) => set({ isSidebarOpen: open }),
   toggleWallet: () => set((state) => ({ isWalletOpen: !state.isWalletOpen })),
 
   startNewChat: () => {

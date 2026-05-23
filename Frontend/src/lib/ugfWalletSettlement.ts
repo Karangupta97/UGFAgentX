@@ -17,6 +17,16 @@ const UGF_GATEWAY_URL =
   import.meta.env.VITE_UGF_GATEWAY_URL?.replace(/\/$/, '') ||
   'https://gateway.universalgasframework.com';
 
+export type WalletSettlementPhase =
+  | 'switch_network'
+  | 'ugf_login'
+  | 'tyi_signature'
+  | 'submit_payment'
+  | 'await_sponsor'
+  | 'mint_tx';
+
+export type WalletSettlementProgress = (phase: WalletSettlementPhase) => void;
+
 /**
  * Poll UGF, then send the user tx using a stable Base Sepolia RPC for estimates/fees.
  * MetaMask's injected RPC often lacks eth_maxPriorityFeePerGas and breaks DOMAIN_SEPARATOR reads.
@@ -97,31 +107,43 @@ export async function runUserWalletUgfFlow(params: {
   quoteSnapshot: Record<string, unknown>;
   contractAddress: string;
   calldata: `0x${string}`;
+  onProgress?: WalletSettlementProgress;
 }): Promise<{ userTxHash: string; quoteId: string }> {
   const quote = params.quoteSnapshot as unknown as QuoteResponse;
   if (!quote?.digest) {
     throw new Error('Invalid UGF quote — claim again from chat');
   }
 
+  const progress = params.onProgress;
+
   try {
+    progress?.('switch_network');
     const signer = await getConnectedEthersSigner();
     const client = new UGFClient();
     const readProvider = getBaseSepoliaReadProvider();
 
+    progress?.('ugf_login');
     await client.auth.login(signer);
 
+    progress?.('tyi_signature');
     const x402Payload = await client.payment.x402.sign(quote, signer, readProvider);
+
+    progress?.('submit_payment');
     await client.payment.x402.submit(x402Payload);
 
+    progress?.('await_sponsor');
     const execution = await sponsorAndExecuteWithStableRpc(
       client,
       quote.digest,
       signer,
-      async () => ({
-        to: params.contractAddress,
-        data: params.calldata,
-        value: 0n,
-      })
+      async () => {
+        progress?.('mint_tx');
+        return {
+          to: params.contractAddress,
+          data: params.calldata,
+          value: 0n,
+        };
+      }
     );
 
     return {

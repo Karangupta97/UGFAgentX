@@ -161,6 +161,34 @@
   animation: ugf-pulse 1.5s ease-in-out infinite;
 }
 
+@keyframes ugf-timeline-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(124, 58, 237, 0);
+  }
+}
+
+.ugf-timeline-active-ring {
+  animation: ugf-timeline-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ugf-timeline-progress-shine {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.ugf-timeline-progress-bar {
+  background-size: 200% 100%;
+  animation: ugf-timeline-progress-shine 2.5s linear infinite;
+}
+
 @keyframes ugf-typing {
   0%,
   60%,
